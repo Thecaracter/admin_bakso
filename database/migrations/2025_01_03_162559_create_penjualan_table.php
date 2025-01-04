@@ -15,14 +15,7 @@ return new class extends Migration {
             $table->string('nomor_invoice')->unique();
             $table->foreignId('user_id')->constrained('users');
             $table->decimal('total_harga', 10, 2);
-            $table->enum('metode_pembayaran', [
-                'BANK_TRANSFER',
-                'QRIS',
-                'VIRTUAL_ACCOUNT',
-                'E_WALLET',
-                'RETAIL',
-                'TUNAI'
-            ]);
+            $table->string('metode_pembayaran');
             $table->string('payment_reference')->nullable();
             $table->enum('status', ['pending', 'lunas', 'batal']);
             $table->timestamps();

@@ -5,6 +5,10 @@
 @section('header', 'Kasir')
 
 @section('content')
+    {{-- Add Midtrans SDK --}}
+    <script type="text/javascript" src="{{ config('midtrans.snap_url') }}"
+        data-client-key="{{ config('midtrans.client_key') }}"></script>
+
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('kasir', () => ({
@@ -14,6 +18,14 @@
                 metodePembayaran: '',
                 uangTunai: '',
                 showPaymentModal: false,
+
+                init() {
+                    console.log('Products:', this.products);
+                },
+
+                formatRupiah(amount) {
+                    return 'Rp ' + amount.toLocaleString('id-ID');
+                },
 
                 get filteredProducts() {
                     return this.products.filter(product =>
@@ -36,10 +48,6 @@
                         return this.uangTunai >= this.total;
                     }
                     return true;
-                },
-
-                formatRupiah(amount) {
-                    return 'Rp ' + amount.toLocaleString('id-ID');
                 },
 
                 addToCart(product) {
@@ -77,19 +85,110 @@
                 processSale() {
                     if (this.metodePembayaran === 'TUNAI') {
                         this.confirmPayment();
-                    } else {
-                        this.showPaymentModal = true;
+                    } else if (this.metodePembayaran === 'BANK_TRANSFER') {
+                        this.processOnlinePayment();
                     }
                 },
 
-                async confirmPayment() {
-                    try {
-                        const response = await fetch('/kasir/process-sale', {
+                processOnlinePayment() {
+                    fetch('/kasir/process-sale', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector(
-                                    'meta[name="csrf-token"]').content
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .content
+                            },
+                            body: JSON.stringify({
+                                items: this.cart.map(item => ({
+                                    id: item.id,
+                                    quantity: item.quantity
+                                })),
+                                metode_pembayaran: this.metodePembayaran
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.success && result.snap_token) {
+                                window.snap.pay(result.snap_token, {
+                                    onSuccess: (result) => {
+                                        fetch('/kasir/payment-success', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'X-CSRF-TOKEN': document
+                                                        .querySelector(
+                                                            'meta[name="csrf-token"]'
+                                                            ).content
+                                                },
+                                                body: JSON.stringify({
+                                                    order_id: result
+                                                        .order_id,
+                                                    payment_type: result
+                                                        .payment_type,
+                                                    transaction_id: result
+                                                        .transaction_id,
+                                                    va_number: result
+                                                        .va_numbers ? result
+                                                        .va_numbers[0]
+                                                        .va_number : null,
+                                                    bank: result
+                                                        .va_numbers ? result
+                                                        .va_numbers[0]
+                                                        .bank : null,
+                                                    payment_code: result
+                                                        .payment_code,
+                                                    bill_key: result
+                                                        .bill_key,
+                                                    biller_code: result
+                                                        .biller_code
+                                                })
+                                            })
+                                            .then(response => response.json())
+                                            .then(updateResult => {
+                                                if (updateResult.success) {
+                                                    alert(
+                                                        `Pembayaran berhasil!\nMetode: ${updateResult.payment_method}`);
+                                                    this.cart = [];
+                                                    this.metodePembayaran = '';
+                                                    this.showPaymentModal = false;
+                                                    window.location.reload();
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error(
+                                                    'Error updating payment status:',
+                                                    error);
+                                                alert(
+                                                    'Pembayaran berhasil, tapi gagal mengupdate status');
+                                                window.location.reload();
+                                            });
+                                    },
+                                    onPending: (result) => {
+                                        alert('Silakan selesaikan pembayaran Anda');
+                                    },
+                                    onError: (result) => {
+                                        alert('Pembayaran gagal');
+                                        window.location.reload();
+                                    },
+                                    onClose: () => {
+                                        alert('Anda menutup popup pembayaran');
+                                    }
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            alert('Terjadi kesalahan saat memproses pembayaran');
+                            console.error('Error:', error);
+                        });
+                },
+
+                confirmPayment() {
+                    fetch('/kasir/process-sale', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .content
                             },
                             body: JSON.stringify({
                                 items: this.cart.map(item => ({
@@ -100,23 +199,22 @@
                                 uang_tunai: this.metodePembayaran === 'TUNAI' ? this
                                     .uangTunai : null
                             })
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.success) {
+                                this.cart = [];
+                                this.metodePembayaran = '';
+                                this.uangTunai = '';
+                                this.showPaymentModal = false;
+                                alert(`Pembayaran berhasil!\nNomor Invoice: ${result.invoice}`);
+                                window.location.reload();
+                            }
+                        })
+                        .catch(error => {
+                            alert('Terjadi kesalahan saat memproses pembayaran');
+                            console.error('Error processing payment:', error);
                         });
-
-                        const result = await response.json();
-
-                        if (result.success) {
-                            this.cart = [];
-                            this.metodePembayaran = '';
-                            this.uangTunai = '';
-                            this.showPaymentModal = false;
-
-                            alert(`Pembayaran berhasil!\nNomor Invoice: ${result.invoice}`);
-                            window.location.reload();
-                        }
-                    } catch (error) {
-                        alert('Terjadi kesalahan saat memproses pembayaran');
-                        console.error('Error processing payment:', error);
-                    }
                 }
             }))
         });
@@ -252,8 +350,7 @@
                                     class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-amber-500 focus:border-transparent">
                                     <option value="" disabled>Pilih Metode Pembayaran</option>
                                     <option value="TUNAI">Tunai</option>
-                                    <option value="QRIS">QRIS</option>
-                                    <option value="BANK_TRANSFER">Transfer Bank</option>
+                                    <option value="BANK_TRANSFER">Pembayaran Online</option>
                                 </select>
 
                                 {{-- Form Uang Tunai akan muncul jika metode pembayaran adalah TUNAI --}}
@@ -313,19 +410,10 @@
 
                         <template x-if="metodePembayaran === 'BANK_TRANSFER'">
                             <div class="space-y-4">
-                                <p class="text-gray-600">Silakan transfer ke rekening berikut:</p>
+                                <p class="text-gray-600">Mengarahkan ke halaman pembayaran...</p>
                                 <div class="bg-gray-50 p-4 rounded-lg space-y-2">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Bank</span>
-                                        <span class="font-medium">BCA</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">No. Rekening</span>
-                                        <span class="font-medium">1234567890</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Atas Nama</span>
-                                        <span class="font-medium">Bakso Boled</span>
+                                    <div class="flex justify-center">
+                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
                                     </div>
                                 </div>
                             </div>

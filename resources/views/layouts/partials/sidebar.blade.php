@@ -25,8 +25,8 @@
         <!-- Navigation Menu -->
         <nav class="flex-1 p-4 space-y-3 overflow-y-auto">
             <!-- Dashboard -->
-            <a href="#"
-                class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 hover:shadow-xl hover:scale-[1.02]"
+            <a href="{{ route('dashboard') }}"
+                class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30' : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-600' }}"
                 @click="sidebarOpen = false">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
@@ -37,9 +37,9 @@
             </a>
 
             <!-- Menu -->
-            <div x-data="{ menuOpen: false }" class="space-y-1">
+            <div x-data="{ menuOpen: {{ request()->routeIs('produk.*') ? 'true' : 'false' }} }" class="space-y-1">
                 <button @click="menuOpen = !menuOpen"
-                    class="flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-300 text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-600 group">
+                    class="flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-300 {{ request()->routeIs('produk.*') ? 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-600' : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-600' }} group">
                     <div class="flex items-center space-x-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
@@ -50,7 +50,7 @@
                     </div>
                     <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': menuOpen }"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
@@ -61,16 +61,16 @@
                     x-transition:leave-start="opacity-100 translate-y-0"
                     x-transition:leave-end="opacity-0 -translate-y-2" class="pl-12">
                     <a href="{{ route('produk.index') }}" @click="sidebarOpen = false"
-                        class="block px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 text-amber-600 bg-amber-50/50 hover:bg-amber-100/80 hover:pl-6 hover:shadow-sm">
+                        class="block px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 {{ request()->routeIs('produk.index') ? 'bg-amber-100 text-amber-700' : 'text-amber-600 bg-amber-50/50 hover:bg-amber-100/80' }} hover:pl-6 hover:shadow-sm">
                         Daftar Menu
                     </a>
                 </div>
             </div>
 
             <!-- Transaksi -->
-            <div x-data="{ transactionOpen: false }" class="space-y-1">
+            <div x-data="{ transactionOpen: {{ request()->routeIs('kasir.*') || request()->routeIs('transaksi.*') ? 'true' : 'false' }} }" class="space-y-1">
                 <button @click="transactionOpen = !transactionOpen"
-                    class="flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-300 text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-600 group">
+                    class="flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-300 {{ request()->routeIs('kasir.*') || request()->routeIs('transaksi.*') ? 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-600' : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-600' }} group">
                     <div class="flex items-center space-x-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
@@ -81,7 +81,7 @@
                     </div>
                     <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': transactionOpen }"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
@@ -92,11 +92,11 @@
                     x-transition:leave-start="opacity-100 translate-y-0"
                     x-transition:leave-end="opacity-0 -translate-y-2" class="pl-12 space-y-1">
                     <a href="{{ route('kasir.index') }}" @click="sidebarOpen = false"
-                        class="block px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 text-amber-600 bg-amber-50/50 hover:bg-amber-100/80 hover:pl-6 hover:shadow-sm">
+                        class="block px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 {{ request()->routeIs('kasir.index') ? 'bg-amber-100 text-amber-700' : 'text-amber-600 bg-amber-50/50 hover:bg-amber-100/80' }} hover:pl-6 hover:shadow-sm">
                         Kasir
                     </a>
-                    <a href="#" @click="sidebarOpen = false"
-                        class="block px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 text-amber-600 bg-amber-50/50 hover:bg-amber-100/80 hover:pl-6 hover:shadow-sm">
+                    <a href="{{ route('transaksi.index') }}" @click="sidebarOpen = false"
+                        class="block px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 {{ request()->routeIs('transaksi.index') ? 'bg-amber-100 text-amber-700' : 'text-amber-600 bg-amber-50/50 hover:bg-amber-100/80' }} hover:pl-6 hover:shadow-sm">
                         Riwayat Transaksi
                     </a>
                 </div>
@@ -106,9 +106,9 @@
             <div class="pt-4 border-t border-amber-100/50">
                 <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Laporan</p>
 
-                <div x-data="{ reportsOpen: false }" class="space-y-1">
+                <div x-data="{ reportsOpen: {{ request()->routeIs('laporan.*') ? 'true' : 'false' }} }" class="space-y-1">
                     <button @click="reportsOpen = !reportsOpen"
-                        class="flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-300 text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-600 group">
+                        class="flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-300 {{ request()->routeIs('laporan.*') ? 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-600' : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-600' }} group">
                         <div class="flex items-center space-x-3">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
@@ -119,8 +119,8 @@
                         </div>
                         <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': reportsOpen }"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
-                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
 
@@ -130,12 +130,12 @@
                         x-transition:leave="transition ease-in duration-150"
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 -translate-y-2" class="pl-12 space-y-1">
-                        <a href="#" @click="sidebarOpen = false"
-                            class="block px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 text-amber-600 bg-amber-50/50 hover:bg-amber-100/80 hover:pl-6 hover:shadow-sm">
+                        <a href="{{ route('laporan.penjualan') }}" @click="sidebarOpen = false"
+                            class="block px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 {{ request()->routeIs('laporan.penjualan') ? 'bg-amber-100 text-amber-700' : 'text-amber-600 bg-amber-50/50 hover:bg-amber-100/80' }} hover:pl-6 hover:shadow-sm">
                             Penjualan
                         </a>
-                        <a href="#" @click="sidebarOpen = false"
-                            class="block px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 text-amber-600 bg-amber-50/50 hover:bg-amber-100/80 hover:pl-6 hover:shadow-sm">
+                        <a href="{{ route('laporan.laba-rugi') }}" @click="sidebarOpen = false"
+                            class="block px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 {{ request()->routeIs('laporan.laba-rugi') ? 'bg-amber-100 text-amber-700' : 'text-amber-600 bg-amber-50/50 hover:bg-amber-100/80' }} hover:pl-6 hover:shadow-sm">
                             Laba Rugi
                         </a>
                     </div>
@@ -145,7 +145,7 @@
 
         <!-- Logout Section -->
         <div class="p-4 border-t border-amber-100">
-            <form action="#" method="POST" @click="sidebarOpen = false">
+            <form action="{{ route('logout') }}" method="POST" @click="sidebarOpen = false">
                 @csrf
                 <button type="submit"
                     class="flex items-center justify-center space-x-3 px-4 py-3 w-full rounded-xl text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-300 group">

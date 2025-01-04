@@ -14,22 +14,22 @@ class ProdukSeeeder extends Seeder
     {
         $directory = public_path('fotoProduk');
 
-        // Buat direktori jika belum ada
         if (!File::exists($directory)) {
             File::makeDirectory($directory, 0777, true);
         }
 
         $filepath = $directory . '/' . $filename;
 
-        // Download gambar
         try {
-            $response = Http::get($url);
+            $response = Http::timeout(30)->get('https://api.dicebear.com/7.x/shapes/png?seed=' . urlencode($filename));
             if ($response->successful()) {
                 File::put($filepath, $response->body());
                 return true;
             }
+            echo "Failed with status: " . $response->status() . "\n";
             return false;
         } catch (\Exception $e) {
+            echo "Error: " . $e->getMessage() . "\n";
             return false;
         }
     }
@@ -42,7 +42,7 @@ class ProdukSeeeder extends Seeder
                 'deskripsi' => 'Bakso daging sapi pilihan dengan kuah kaldu sapi yang gurih. Disajikan dengan mie kuning, bihun, dan sayuran segar.',
                 'harga' => 15000,
                 'stok' => 100,
-                'gambar_url' => 'https://assets.pikiran-rakyat.com/crop/0x0:0x0/x/photo/2021/09/30/1963197229.jpg',
+                'gambar_url' => 'bakso-original',
                 'gambar' => 'fotoProduk/bakso-original.jpg',
                 'aktif' => true
             ],
@@ -51,7 +51,7 @@ class ProdukSeeeder extends Seeder
                 'deskripsi' => 'Bakso dengan tambahan urat sapi yang kenyal, disajikan dengan kuah kaldu sapi. Cocok untuk pencinta tekstur bakso yang lebih bervariasi.',
                 'harga' => 18000,
                 'stok' => 100,
-                'gambar_url' => 'https://img.kurio.network/ZiE4tqVds1GjHHWvL0GJw8nPR7A=/1200x900/filters:quality(80)/https://kurio-img.kurioapps.com/21/02/22/8e8ed492-1686-4472-95be-fc19e52baba1.jpe',
+                'gambar_url' => 'bakso-urat',
                 'gambar' => 'fotoProduk/bakso-urat.jpg',
                 'aktif' => true
             ],
@@ -60,26 +60,23 @@ class ProdukSeeeder extends Seeder
                 'deskripsi' => 'Mie bakso dengan topping lengkap termasuk bakso besar, bakso urat, tahu bakso, dan pangsit. Disajikan dengan kuah kaldu sapi premium.',
                 'harga' => 25000,
                 'stok' => 50,
-                'gambar_url' => 'https://assets.pikiran-rakyat.com/crop/0x0:0x0/x/photo/2021/09/07/1055334839.jpg',
+                'gambar_url' => 'mie-bakso-special',
                 'gambar' => 'fotoProduk/mie-bakso-special.jpg',
                 'aktif' => true
             ]
         ];
 
         foreach ($products as $product) {
-            // Download gambar
-            echo "Downloading image for {$product['nama']}...\n";
+            echo "Generating image for {$product['nama']}...\n";
             $downloaded = $this->downloadImage($product['gambar_url'], basename($product['gambar']));
 
             if (!$downloaded) {
-                echo "Failed to download image for {$product['nama']}\n";
+                echo "Failed to generate image for {$product['nama']}\n";
                 continue;
             }
 
-            // Hapus gambar_url dari data yang akan disimpan ke database
             unset($product['gambar_url']);
 
-            // Buat produk
             Produk::create($product);
             echo "Created product: {$product['nama']}\n";
         }
