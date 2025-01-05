@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\DashboardController;
 
 /*
@@ -51,27 +52,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/payment-success', [KasirController::class, 'paymentSuccess'])->name('kasir.payment-success');
     });
 
-    // Dummy Routes untuk fitur yang belum diimplementasi
-    Route::get('/transaksi', function () {
-        return view('pages.dummy', [
-            'title' => 'Riwayat Transaksi',
-            'message' => 'Halaman Riwayat Transaksi sedang dalam pengembangan'
-        ]);
-    })->name('transaksi.index');
-
-    Route::prefix('laporan')->group(function () {
-        Route::get('/penjualan', function () {
-            return view('pages.dummy', [
-                'title' => 'Laporan Penjualan',
-                'message' => 'Halaman Laporan Penjualan sedang dalam pengembangan'
-            ]);
-        })->name('laporan.penjualan');
-
-        Route::get('/laba-rugi', function () {
-            return view('pages.dummy', [
-                'title' => 'Laporan Laba Rugi',
-                'message' => 'Halaman Laporan Laba Rugi sedang dalam pengembangan'
-            ]);
-        })->name('laporan.laba-rugi');
+    // Riwayat Routes
+    Route::prefix('riwayat')->group(function () {
+        Route::get('/', [RiwayatController::class, 'index'])->name('riwayat.index');
+        Route::get('/print', [RiwayatController::class, 'print'])->name('riwayat.print');
+        Route::get('/export', [RiwayatController::class, 'exportExcel'])->name('riwayat.export');
+        Route::get('/{penjualan}', [RiwayatController::class, 'show'])->name('riwayat.show');
     });
+
 });

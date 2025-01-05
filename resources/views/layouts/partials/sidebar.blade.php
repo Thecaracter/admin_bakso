@@ -95,50 +95,10 @@
                         class="block px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 {{ request()->routeIs('kasir.index') ? 'bg-amber-100 text-amber-700' : 'text-amber-600 bg-amber-50/50 hover:bg-amber-100/80' }} hover:pl-6 hover:shadow-sm">
                         Kasir
                     </a>
-                    <a href="{{ route('transaksi.index') }}" @click="sidebarOpen = false"
+                    <a href="{{ route('riwayat.index') }}" @click="sidebarOpen = false"
                         class="block px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 {{ request()->routeIs('transaksi.index') ? 'bg-amber-100 text-amber-700' : 'text-amber-600 bg-amber-50/50 hover:bg-amber-100/80' }} hover:pl-6 hover:shadow-sm">
                         Riwayat Transaksi
                     </a>
-                </div>
-            </div>
-
-            <!-- Reports Section -->
-            <div class="pt-4 border-t border-amber-100/50">
-                <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Laporan</p>
-
-                <div x-data="{ reportsOpen: {{ request()->routeIs('laporan.*') ? 'true' : 'false' }} }" class="space-y-1">
-                    <button @click="reportsOpen = !reportsOpen"
-                        class="flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-300 {{ request()->routeIs('laporan.*') ? 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-600' : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-600' }} group">
-                        <div class="flex items-center space-x-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <span class="font-medium">Laporan</span>
-                        </div>
-                        <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': reportsOpen }"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-
-                    <div x-show="reportsOpen" x-transition:enter="transition ease-out duration-200"
-                        x-transition:enter-start="opacity-0 -translate-y-2"
-                        x-transition:enter-end="opacity-100 translate-y-0"
-                        x-transition:leave="transition ease-in duration-150"
-                        x-transition:leave-start="opacity-100 translate-y-0"
-                        x-transition:leave-end="opacity-0 -translate-y-2" class="pl-12 space-y-1">
-                        <a href="{{ route('laporan.penjualan') }}" @click="sidebarOpen = false"
-                            class="block px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 {{ request()->routeIs('laporan.penjualan') ? 'bg-amber-100 text-amber-700' : 'text-amber-600 bg-amber-50/50 hover:bg-amber-100/80' }} hover:pl-6 hover:shadow-sm">
-                            Penjualan
-                        </a>
-                        <a href="{{ route('laporan.laba-rugi') }}" @click="sidebarOpen = false"
-                            class="block px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 {{ request()->routeIs('laporan.laba-rugi') ? 'bg-amber-100 text-amber-700' : 'text-amber-600 bg-amber-50/50 hover:bg-amber-100/80' }} hover:pl-6 hover:shadow-sm">
-                            Laba Rugi
-                        </a>
-                    </div>
                 </div>
             </div>
         </nav>

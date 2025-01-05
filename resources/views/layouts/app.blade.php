@@ -107,7 +107,7 @@
 
                 @yield('content')
             </main>
-
+            @stack('scripts')
             @include('layouts.partials.footer')
         </div>
     </div>

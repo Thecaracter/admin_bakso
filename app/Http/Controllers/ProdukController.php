@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Produk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
 
 class ProdukController extends Controller
 {
@@ -24,16 +25,26 @@ class ProdukController extends Controller
         ]);
 
         try {
+            $namaFile = null;
             if ($request->hasFile('gambar')) {
                 $gambar = $request->file('gambar');
-                $namaFile = time() . '_' . Str::slug($request->nama) . '.' . $gambar->getClientOriginalExtension();
-                $gambar->move(public_path('fotoProduk'), $namaFile);
+                $namaFile = Str::slug($request->nama) . '.' . $gambar->getClientOriginalExtension();
+
+                // Pastikan direktori 'fotoProduk' ada
+                $destinationPath = public_path('fotoProduk');
+                if (!File::exists($destinationPath)) {
+                    File::makeDirectory($destinationPath, 0755, true);
+                }
+
+                $gambar->move($destinationPath, $namaFile);
+                // Tambahkan 'fotoProduk/' ke nama file untuk disimpan di database
+                $namaFile = 'fotoProduk/' . $namaFile;
             }
 
             Produk::create([
                 'nama' => $request->nama,
                 'deskripsi' => $request->deskripsi,
-                'gambar' => $namaFile ?? null,
+                'gambar' => $namaFile,
                 'harga' => $request->harga,
                 'stok' => $request->stok,
                 'aktif' => true
@@ -59,17 +70,23 @@ class ProdukController extends Controller
             $produk = Produk::findOrFail($id);
 
             if ($request->hasFile('gambar')) {
-                // Hapus gambar lama
-                if ($produk->gambar && file_exists(public_path('fotoProduk/' . $produk->gambar))) {
-                    unlink(public_path('fotoProduk/' . $produk->gambar));
+                // Hapus gambar lama jika ada
+                if ($produk->gambar && file_exists(public_path($produk->gambar))) {
+                    unlink(public_path($produk->gambar));
                 }
 
                 // Upload gambar baru
                 $gambar = $request->file('gambar');
-                $namaFile = time() . '_' . Str::slug($request->nama) . '.' . $gambar->getClientOriginalExtension();
-                $gambar->move(public_path('fotoProduk'), $namaFile);
+                $namaFile = Str::slug($request->nama) . '.' . $gambar->getClientOriginalExtension();
 
-                $produk->gambar = $namaFile;
+                // Pastikan direktori 'fotoProduk' ada
+                $destinationPath = public_path('fotoProduk');
+                if (!File::exists($destinationPath)) {
+                    File::makeDirectory($destinationPath, 0755, true);
+                }
+
+                $gambar->move($destinationPath, $namaFile);
+                $produk->gambar = 'fotoProduk/' . $namaFile; // Simpan dengan path lengkap
             }
 
             $produk->update([
@@ -91,8 +108,8 @@ class ProdukController extends Controller
             $produk = Produk::findOrFail($id);
 
             // Hapus gambar jika ada
-            if ($produk->gambar && file_exists(public_path('fotoProduk/' . $produk->gambar))) {
-                unlink(public_path('fotoProduk/' . $produk->gambar));
+            if ($produk->gambar && file_exists(public_path($produk->gambar))) {
+                unlink(public_path($produk->gambar));
             }
 
             $produk->delete();

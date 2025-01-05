@@ -16,7 +16,7 @@
                         const previewImage = previewContainer.querySelector('img');
 
                         // Update form action
-                        form.action = `/produk/update/${item.id}`;
+                        form.action = `produk/update/${item.id}`;
 
                         // Populate form fields
                         document.getElementById('editNama').value = item.nama;
@@ -26,7 +26,7 @@
 
                         // Set current image preview
                         if (item.gambar) {
-                            previewImage.src = `/fotoProduk/${item.gambar}`;
+                            previewImage.src = `${item.gambar}`;
                             previewContainer.classList.remove('hidden');
                         }
 
@@ -68,7 +68,7 @@
                             <tr class="hover:bg-amber-50/50 transition-colors duration-200">
                                 <td class="px-6 py-4 text-sm text-gray-600">{{ $loop->iteration }}</td>
                                 <td class="px-6 py-4">
-                                    <img src="{{ asset('fotoProduk/' . $item->gambar) }}" alt="{{ $item->nama }}"
+                                    <img src="{{ asset($item->gambar) }}" alt="{{ $item->nama }}"
                                         class="w-16 h-16 object-cover rounded-lg shadow-sm">
                                 </td>
                                 <td class="px-6 py-4">
